@@ -1,7 +1,7 @@
+import { lastValueFrom, of } from 'rxjs';
 // tslint:disable:no-string-literal
 import * as faker from "faker";
 import { ReflectiveInjector } from "injection-js";
-import { of } from "rxjs";
 import { createMockFor, SpyObj } from "../../../spec/testUtils";
 import { API, getApiUrl, MESSAGE } from "../../config";
 import { RequestExecuter } from "../../internal/executer";
@@ -315,7 +315,7 @@ describe("UMS Module", () => {
 
           systemDefer.resolve();
           await init();
-          await subject.signIn({ ...user, alias }).toPromise();
+          await lastValueFrom(subject.signIn({ ...user, alias }));
 
           const { calls: [ [tokenManagerAliases] ] } = tokenManagerMock.addTokens.mock;
 
@@ -328,7 +328,7 @@ describe("UMS Module", () => {
 
         systemDefer.resolve();
         await init();
-        await subject.signIn(user).toPromise();
+        await lastValueFrom(subject.signIn(user));
 
         expect(dispatcherMock.emit).toHaveBeenCalledWith(DispatchEvents.UMS_LOGIN);
       });
@@ -361,7 +361,7 @@ describe("UMS Module", () => {
 
           systemDefer.resolve();
           await init();
-          await subject.signIn({ ...oAuthOptions, alias }).toPromise();
+          await lastValueFrom(subject.signIn({ ...oAuthOptions, alias }));
 
           const { calls: [ [tokenManagerAliases] ] } = tokenManagerMock.addTokens.mock;
           expect(tokenManagerAliases).toEqual(aliases);
@@ -373,7 +373,7 @@ describe("UMS Module", () => {
       const { subject, user, systemDefer, init, userResponse } = createSubject();
       systemDefer.resolve();
       await init();
-      const response = await subject.signIn(user).toPromise();
+      const response = await lastValueFrom(subject.signIn(user));
 
       expect(response).toEqual(userResponse);
     });

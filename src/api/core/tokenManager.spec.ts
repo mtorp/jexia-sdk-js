@@ -1,5 +1,5 @@
+import { lastValueFrom, Observable, of, throwError } from 'rxjs';
 import * as faker from "faker";
-import { Observable, of, throwError } from "rxjs";
 import { createMockFor, mockRequestError, validClientOpts } from "../../../spec/testUtils";
 import { MESSAGE, getProjectId, APIKEY_DEFAULT_ALIAS } from "../../config";
 import { RequestAdapter, RequestMethod } from "../../internal/requestAdapter";
@@ -476,7 +476,7 @@ describe("TokenManager", () => {
     it("should dispatch an event when the token got refreshed", async () => {
       const { subject, validOptions, dispatcherMock } = createSubject();
       await subject.init(validOptions);
-      await (subject as any).refresh().toPromise();
+      await lastValueFrom((subject as any).refresh());
       expect(dispatcherMock.emit).toHaveBeenCalledWith(DispatchEvents.TOKEN_REFRESH);
     });
 

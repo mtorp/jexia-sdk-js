@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 import * as faker from "faker";
 import * as Joi from "joi";
 import { field } from "../../../src";
@@ -24,16 +25,14 @@ describe("update record REST API", async () => {
   it("should return array of records when updating single record by id", async () => {
     const newName = faker.lorem.sentence(3);
 
-    const record = await fileset
+    const record = await lastValueFrom(fileset
       .upload([{
         data: { [DEFAULT_DATASET.FIELD]: faker.name.findName() },
-      }])
-      .toPromise();
+      }]));
 
-    const updateResult = await fileset
+    const updateResult = await lastValueFrom(fileset
       .update({ [DEFAULT_DATASET.FIELD]: newName })
-      .where(field("id").isEqualTo(record.id))
-      .toPromise();
+      .where(field("id").isEqualTo(record.id)));
 
     joiAssert(updateResult, Joi.array()
       .items(FilesetRecordSchema.append({
@@ -48,22 +47,20 @@ describe("update record REST API", async () => {
     const randomField = faker.random.arrayElement(["some_field", "another_field", "last_field"]);
     const newRandomValue = faker.lorem.sentence(5);
 
-    await fileset
+    await lastValueFrom(fileset
       .upload([ {
         data: {
           [DEFAULT_DATASET.FIELD]: originalName,
           [randomField]: faker.lorem.sentence(4),
         },
-      }])
-      .toPromise();
+      }]));
 
-    const updateResult = await fileset
+    const updateResult = await lastValueFrom(fileset
       .update({
         [DEFAULT_DATASET.FIELD]: originalName,
         [randomField]: newRandomValue,
       })
-      .where(field(DEFAULT_DATASET.FIELD).isEqualTo(originalName))
-      .toPromise();
+      .where(field(DEFAULT_DATASET.FIELD).isEqualTo(originalName)));
 
     joiAssert(updateResult, Joi.array()
       .items(FilesetRecordSchema.append({
@@ -77,15 +74,13 @@ describe("update record REST API", async () => {
   it("should throw error under invalid where condition", async () => {
     const originalName = faker.name.findName();
 
-    await fileset
-      .upload([{ data: { [DEFAULT_DATASET.FIELD]: originalName } }])
-      .toPromise();
+    await lastValueFrom(fileset
+      .upload([{ data: { [DEFAULT_DATASET.FIELD]: originalName } }]));
 
     try {
-      await fileset
+      await lastValueFrom(fileset
         .update({ [DEFAULT_DATASET.FIELD]: faker.lorem.sentence(4) })
-        .where(field("id").isEqualTo("invalid"))
-        .toPromise();
+        .where(field("id").isEqualTo("invalid")));
     } catch (e) {
       joiAssert(e, BackendErrorSchema);
     }

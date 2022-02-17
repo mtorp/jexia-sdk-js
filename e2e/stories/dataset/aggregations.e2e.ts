@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 import { ISetField } from "../../management";
 import { cleaning, DEFAULT_DATASET, dom, init } from "../../teardowns";
 
@@ -21,7 +22,7 @@ const data = [
 describe("Dataset aggregation functions", () => {
   beforeAll(async () => {
     await init(DEFAULT_DATASET.NAME, fields);
-    await dom.dataset(DEFAULT_DATASET.NAME).insert(data).toPromise();
+    await lastValueFrom(dom.dataset(DEFAULT_DATASET.NAME).insert(data));
   });
 
   afterAll(async () => cleaning());

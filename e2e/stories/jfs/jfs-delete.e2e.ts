@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 import * as faker from "faker";
 import * as Joi from "joi";
 import { field } from "../../../src";
@@ -21,23 +22,20 @@ describe("delete record REST API", async () => {
   afterAll(async () => cleaning());
 
   it("deletes single record by id", async () => {
-    const record = await fileset
+    const record = await lastValueFrom(fileset
       .upload([{
         data: { [DEFAULT_FILESET.FIELD]: faker.random.word() },
-      }])
-      .toPromise();
+      }]));
 
     const isRecord = field("id").isEqualTo(record.id);
 
-    await fileset
+    await lastValueFrom(fileset
       .delete()
-      .where(isRecord)
-      .toPromise();
+      .where(isRecord));
 
-    const result = fileset
+    const result = lastValueFrom(fileset
       .select()
-      .where(isRecord)
-      .toPromise();
+      .where(isRecord));
 
     joiAssert(result, Joi.empty());
   });
@@ -56,15 +54,13 @@ describe("delete record REST API", async () => {
     it("should delete all records by ids list", async () => {
       const isInList = field("id").isInArray(records.map(({ id }) => id));
 
-      await fileset
+      await lastValueFrom(fileset
         .delete()
-        .where(isInList)
-        .toPromise();
+        .where(isInList));
 
-      const result = fileset
+      const result = lastValueFrom(fileset
         .select()
-        .where(isInList)
-        .toPromise();
+        .where(isInList));
 
       joiAssert(result, Joi.empty());
     });
@@ -72,10 +68,9 @@ describe("delete record REST API", async () => {
 
   it("should throw error under invalid where condition", async () => {
     try {
-      await fileset
+      await lastValueFrom(fileset
         .delete()
-        .where(field("id").isEqualTo(faker.random.uuid()))
-        .toPromise();
+        .where(field("id").isEqualTo(faker.random.uuid())));
     } catch (e) {
       joiAssert(e, BackendErrorSchema);
     }

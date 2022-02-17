@@ -181,6 +181,9 @@ export class Fileset<FormDataType extends IFormData<F>, T, D, F> implements IRes
       )),
       tap(() => {
         if (filesCompleted === filesUploaded) {
+          /* TODO: JSFix could not patch the breaking change:
+          Calling .next on a Subject without passing a value is no longer allowed 
+          Suggested fix: Pass undefined to preserve old behavior. */
           allFilesCompleted.next();
           allFilesCompleted.complete();
         }

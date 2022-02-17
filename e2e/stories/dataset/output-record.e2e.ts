@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 import * as faker from "faker";
 import * as Joi from "joi";
 import { Dataset } from "../../../src/api/dataops/dataset";
@@ -60,9 +61,8 @@ describe("output record fields REST API", () => {
       ],
     );
     dataset = dom.dataset(DEFAULT_DATASET.NAME);
-    await dataset
-      .insert(testData)
-      .toPromise();
+    await lastValueFrom(dataset
+      .insert(testData));
   });
 
   afterAll(async () => cleaning());

@@ -1,6 +1,6 @@
+import { lastValueFrom, of, throwError } from 'rxjs';
 import * as faker from "faker";
 import { ReflectiveInjector } from "injection-js";
-import { of, throwError } from "rxjs";
 import { createMockFor, SpyObj, validClientOpts } from "../../../spec/testUtils";
 import { RequestExecuter } from "../../../src/internal/executer";
 import { MESSAGE, getRtcUrl } from "../../config";
@@ -55,7 +55,7 @@ describe("Real Time Module", () => {
       async moduleConnect() {
         await subject.init(injectorMock);
         const promise = (subject as any).connect();
-        tokenManagerMock.token().toPromise().then(() => webSocketMock.onopen && webSocketMock.onopen({}));
+        lastValueFrom(tokenManagerMock.token()).then(() => webSocketMock.onopen && webSocketMock.onopen({}));
         return promise;
       },
       dispatcherMock,
@@ -247,7 +247,7 @@ describe("Real Time Module", () => {
       await moduleConnect();
       expect(websocket.start).toHaveBeenCalledWith(webSocketMock, jasmine.any(Function), false);
       const token = (websocket.start as jasmine.Spy).calls.mostRecent().args[1]();
-      expect(token).toStrictEqual(tokenManagerMock.token().toPromise());
+      expect(token).toStrictEqual(lastValueFrom(tokenManagerMock.token()));
     });
 
     it("should not start dataset watch functionality if not initialized", async () => {
@@ -306,7 +306,7 @@ describe("Real Time Module", () => {
       const { subject, webSocketMock, tokenManagerMock, injectorMock } = createSubject();
       await subject.init(injectorMock);
       const initPromise = (subject as any).connect();
-      tokenManagerMock.token().toPromise().then(() => webSocketMock.onerror("webSocketError"));
+      lastValueFrom(tokenManagerMock.token()).then(() => webSocketMock.onerror("webSocketError"));
       try {
         await initPromise;
         throw new Error(shouldHaveFailed);
