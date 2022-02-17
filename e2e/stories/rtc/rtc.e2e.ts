@@ -1,4 +1,4 @@
-import { Subscription } from "rxjs";
+import { lastValueFrom, Subscription } from 'rxjs';
 import { RTCMessageSchema } from "../../lib/rtc";
 import { cleaning, dom, init } from "../../teardowns";
 
@@ -37,9 +37,8 @@ describe("Real Time Communication", () => {
           expect(RTCMessage).toBeDefined();
         });
 
-      const records = await dom.dataset(datasetName)
-        .insert([{test_field: "name"}])
-        .toPromise();
+      const records = await lastValueFrom(dom.dataset(datasetName)
+        .insert([{test_field: "name"}]));
       recordId = records[0].id;
     });
 
@@ -67,13 +66,12 @@ describe("Real Time Communication", () => {
           expect(RTCMessage).toBeDefined();
         });
 
-      const records = await dom.dataset(datasetName)
+      const records = await lastValueFrom(dom.dataset(datasetName)
         .insert([
           { test_field: "name1" },
           { test_field: "name2" },
           { test_field: "name3" },
-        ])
-        .toPromise();
+        ]));
       recordIds = records.map((record) => record.id);
     });
 
@@ -91,9 +89,8 @@ describe("Real Time Communication", () => {
 
     // Insert a record for the updating
     beforeAll(async () => {
-      const records = await dom.dataset(datasetName)
-        .insert([{test_field: "name"}])
-        .toPromise();
+      const records = await lastValueFrom(dom.dataset(datasetName)
+        .insert([{test_field: "name"}]));
       recordId = records[0].id;
     });
 
@@ -111,10 +108,9 @@ describe("Real Time Communication", () => {
           done();
         });
 
-      dom.dataset(datasetName)
+      lastValueFrom(dom.dataset(datasetName)
         .update({test_field: "name_new"})
-        .where((field) => field("id").isEqualTo(recordId))
-        .toPromise();
+        .where((field) => field("id").isEqualTo(recordId)));
     });
 
   });
@@ -123,9 +119,8 @@ describe("Real Time Communication", () => {
 
     // Insert a record for deletion
     beforeAll(async () => {
-      const records = await dom.dataset(datasetName)
-        .insert([{test_field: "name"}])
-        .toPromise();
+      const records = await lastValueFrom(dom.dataset(datasetName)
+        .insert([{test_field: "name"}]));
       recordId = records[0].id;
     });
 
@@ -143,10 +138,9 @@ describe("Real Time Communication", () => {
           done();
         });
 
-      dom.dataset(datasetName)
+      lastValueFrom(dom.dataset(datasetName)
         .delete()
-        .where((field) => field("id").isEqualTo(recordId))
-        .toPromise();
+        .where((field) => field("id").isEqualTo(recordId)));
     });
 
   });

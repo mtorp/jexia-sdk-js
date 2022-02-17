@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 import * as faker from "faker";
 import * as Joi from "joi";
 import { field } from "../../../src";
@@ -25,10 +26,9 @@ describe("filter records REST API", () => {
 
   function testLength(title: string, condition: Condition, expectedLength: number) {
     it(`should select records by "${title}"`, async () => {
-      const selectResult = await fileset
+      const selectResult = await lastValueFrom(fileset
         .select()
-        .where(condition)
-        .toPromise();
+        .where(condition));
 
       expect(selectResult.length).toEqual(expectedLength);
     });
@@ -37,10 +37,9 @@ describe("filter records REST API", () => {
   function testError(title: string, condition: Condition) {
     it(`should throw error when selecting records by "${title}"`, async () => {
       try {
-        await fileset
+        await lastValueFrom(fileset
           .select()
-          .where(condition)
-          .toPromise();
+          .where(condition));
       } catch (e) {
         joiAssert(e, BackendErrorSchema);
       }
@@ -48,16 +47,14 @@ describe("filter records REST API", () => {
   }
 
   function setupData(testData: Array<{ data: any }>) {
-    return fileset
-      .upload(testData)
-      .toPromise();
+    return lastValueFrom(fileset
+      .upload(testData));
   }
 
   function clearData() {
-    return fileset
+    return lastValueFrom(fileset
       .delete()
-      .where(field("id").isNotNull())
-      .toPromise();
+      .where(field("id").isNotNull()));
   }
 
   function test(
@@ -415,30 +412,27 @@ describe("filter records REST API", () => {
     afterAll(async () => await clearData());
 
     it("should return less items when limit is lower than total of results", async () => {
-      const result = await fileset
+      const result = await lastValueFrom(fileset
         .select()
-        .limit(2)
-        .toPromise();
+        .limit(2));
 
       expect(result.length).toEqual(2);
     });
 
     it("should return all items when limit is higher than total of results", async () => {
-      const result = await fileset
+      const result = await lastValueFrom(fileset
         .select()
-        .limit(10)
-        .toPromise();
+        .limit(10));
 
       expect(result.length).toEqual(testData.length);
     });
 
     it(`should split results when setting limit/offset`, async () => {
       const limit = 2;
-      const result = await fileset
+      const result = await lastValueFrom(fileset
         .select()
         .limit(limit)
-        .offset(1)
-        .toPromise();
+        .offset(1));
 
       const expectedSchema = Joi
         .array()
@@ -484,10 +478,9 @@ describe("filter records REST API", () => {
     async function testSorting(fn: "sortAsc" | "sortDesc", sortFn: (a: any, b: any) => number) {
       sortField = faker.random.arrayElement([FIELD.STRING, FIELD.INTEGER]);
 
-      const result = await fileset
+      const result = await lastValueFrom(fileset
         .select()
-        [fn](sortField)
-        .toPromise();
+        [fn](sortField));
 
       const orderedSchemas = testData
         .slice(0) // copy array

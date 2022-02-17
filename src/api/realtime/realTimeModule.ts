@@ -1,6 +1,6 @@
+import { lastValueFrom, of } from 'rxjs';
 import { ReflectiveInjector } from "injection-js";
 import { catchError, filter, tap } from "rxjs/operators";
-import { of } from "rxjs";
 import { MESSAGE, getRtcUrl } from "../../config";
 import { RequestExecuter } from "../../internal/executer";
 import { IModule, ModuleConfiguration } from "../core/module";
@@ -216,7 +216,7 @@ export class RealTimeModule implements IModule {
    * @internal
    */
   private refreshToken(): void {
-    websocket.refreshToken(this.websocket, () => this.tokenManager.token().toPromise());
+    websocket.refreshToken(this.websocket, () => lastValueFrom(this.tokenManager.token()));
   }
 
   /**
@@ -245,7 +245,7 @@ export class RealTimeModule implements IModule {
     }
 
     // TODO Get rid of promises
-    return this.tokenManager.token().toPromise().then((token) => {
+    return lastValueFrom(this.tokenManager.token()).then((token) => {
       try {
         this.websocket = this.websocketBuilder(getRtcUrl(config, token));
       } catch (error) {
@@ -266,7 +266,7 @@ export class RealTimeModule implements IModule {
         this.websocket.onerror = () => reject(new Error(MESSAGE.RTC.CONNECTION_FAILED));
       });
     })
-      .then(() => websocket.start(this.websocket, () => this.tokenManager.token().toPromise(), reconnection));
+      .then(() => websocket.start(this.websocket, () => lastValueFrom(this.tokenManager.token()), reconnection));
   }
 
   /**

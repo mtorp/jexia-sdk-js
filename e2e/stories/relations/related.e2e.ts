@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 import * as faker from "faker";
 import * as Joi from "joi";
 // @ts-ignore
@@ -22,15 +23,14 @@ const testData = [{
 describe("Populate related fields", () => {
   beforeAll(async () => {
     await initForRelations();
-    await dom.dataset("posts").insert(testData).toPromise();
+    await lastValueFrom(dom.dataset("posts").insert(testData));
   });
   afterAll(async () => await cleaning());
 
   it("should select all nested fields by default", async () => {
-    const [{ comments }] = await dom.dataset("posts")
+    const [{ comments }] = await lastValueFrom(dom.dataset("posts")
       .select()
-      .related("comments")
-      .toPromise();
+      .related("comments"));
     joiAssert(comments[0], DatasetRecordSchema.append({
       message: Joi.string().required(),
       like: Joi.boolean().required(),
@@ -38,10 +38,9 @@ describe("Populate related fields", () => {
   });
 
   it("should select only provided fields and id", async () => {
-    const [{ comments }] = await dom.dataset("posts")
+    const [{ comments }] = await lastValueFrom(dom.dataset("posts")
       .select()
-      .related("comments", (c) => c.fields("message"))
-      .toPromise();
+      .related("comments", (c) => c.fields("message")));
 
     joiAssert(comments[0], Joi.object({
       id: Joi.string().uuid().required(),
@@ -50,10 +49,9 @@ describe("Populate related fields", () => {
   });
 
   it("should populate all fields from 2-nd level relation", async () => {
-    const [{ comments }] = await dom.dataset("posts")
+    const [{ comments }] = await lastValueFrom(dom.dataset("posts")
       .select()
-      .related("comments", (c) => c.related("author"))
-      .toPromise();
+      .related("comments", (c) => c.related("author")));
 
     joiAssert(comments[0].author, DatasetRecordSchema.append({
       email: Joi.string().required(),
@@ -61,13 +59,11 @@ describe("Populate related fields", () => {
   });
 
   it("should select only provided fields and id from the 2-nd level relation", async () => {
-    const [{ comments }] = await dom.dataset("posts")
+    const [{ comments }] = await lastValueFrom(dom.dataset("posts")
       .select()
       .related("comments",
         (c) => c.related("author",
-          (author) => author.fields("email")),
-      )
-      .toPromise();
+          (author) => author.fields("email"))));
 
     joiAssert(comments[0].author, Joi.object({
       id: Joi.string().uuid().required(),
@@ -76,16 +72,14 @@ describe("Populate related fields", () => {
   });
 
   it("should select only provided fields and id from both nested relations", async () => {
-    const [{ comments }] = await dom.dataset("posts")
+    const [{ comments }] = await lastValueFrom(dom.dataset("posts")
       .select()
       .related("comments",
         (c) => c
           .fields("message")
           .related("author",
-            (author) => author.fields("email"),
-          ),
-      )
-      .toPromise();
+            (author) => author.fields("email")),
+      ));
 
     joiAssert(comments[0], Joi.object({
       id: Joi.string().uuid().required(),

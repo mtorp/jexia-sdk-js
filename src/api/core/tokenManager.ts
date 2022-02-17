@@ -1,5 +1,5 @@
+import { lastValueFrom, from, Observable, iif, of } from 'rxjs';
 import { Injectable, InjectionToken } from "injection-js";
-import { from, Observable, iif, of } from "rxjs";
 import { catchError, map, tap, switchMap, finalize } from "rxjs/operators";
 import { API, MESSAGE, getApiUrl, getProjectId, APIKEY_DEFAULT_ALIAS } from "../../config";
 import { IRequestError, RequestAdapter, RequestMethod } from "../../internal/requestAdapter";
@@ -166,7 +166,7 @@ export class TokenManager {
     /* if auth is provided */
     if (opts.key && opts.secret) {
       this.initPromise = this.initPromise
-        .then(() => this.login(opts).toPromise())
+        .then(() => lastValueFrom(this.login(opts)))
         .then(() => this);
     }
 

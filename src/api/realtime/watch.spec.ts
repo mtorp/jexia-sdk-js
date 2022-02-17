@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 // tslint:disable:max-line-length
 import { Subscription } from "rxjs/internal/Subscription";
 import { combineLatest } from "rxjs/operators";
@@ -302,7 +303,7 @@ describe("Dataset Watch", () => {
           createResponseCommandMessage({request, error: realtimeError})), 10);
 
         try {
-          await sub.toPromise();
+          await lastValueFrom(sub);
           throw new Error(shouldHaveFailed);
         } catch (error) {
           expect(error.message).toContain(realtimeError.code);
